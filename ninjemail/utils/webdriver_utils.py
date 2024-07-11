@@ -65,7 +65,7 @@ def create_background_file(background_js):
 
     return folder_path
 
-def create_driver(browser, captcha_extension=False, proxy=None, captcha_key={}):
+def create_driver(browser, captcha_extension=False, proxy=None, captcha_key={}, fingerprint=None):
     """
     Create a WebDriver instance for the specified browser with optional configurations.
 
@@ -143,11 +143,12 @@ def create_driver(browser, captcha_extension=False, proxy=None, captcha_key={}):
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-gpu')
         options.add_experimental_option('prefs', {'intl.accept_languages': 'en-us'})
-        options.add_argument('--headless=new')
+        # options.add_argument('--headless=new')
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
         proxy_ext = None
         if proxy:
+            print(proxy)
             if username and password:
                 background_js = create_backgroundjs(ip_address, port, username, password)
                 proxy_ext = create_background_file(background_js)
@@ -179,6 +180,7 @@ def create_driver(browser, captcha_extension=False, proxy=None, captcha_key={}):
 
         proxy_ext = None
         if proxy:
+            print(proxy)
             if username and password:
                 background_js = create_backgroundjs(ip_address, port, username, password)
                 proxy_ext = create_background_file(background_js)
@@ -186,6 +188,7 @@ def create_driver(browser, captcha_extension=False, proxy=None, captcha_key={}):
                     options.add_argument(f'--load-extension={proxy_ext}')
             else:
                 options.add_argument(f'--proxy-server={proxy}')
+                print(f'--proxy-server={proxy}')  # Debugging line to check the proxy argument
         if captcha_extension:
             if captcha_key.get('name', None) == 'capsolver':
                 add_capsolver_api_key(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'captcha_solvers/capsolver-chrome-extension/assets/config.js'), captcha_key.get('key', None))
@@ -197,7 +200,7 @@ def create_driver(browser, captcha_extension=False, proxy=None, captcha_key={}):
             else:
                 options.add_argument(f'--load-extension={ext_path}')
 
-        driver = uc.Chrome(options=options, headless=True, use_subprocess=False) 
+        driver = uc.Chrome(options=options, headless=False, use_subprocess=False) 
 
         if captcha_key.get('name', None) == 'nopecha':
             driver.get(f"https://nopecha.com/setup#{captcha_key.get('key', None)}")
